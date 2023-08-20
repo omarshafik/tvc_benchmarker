@@ -10,9 +10,9 @@ ENV DISPLAY :0
 # Install tvc_benchmarker (and dependencies)
 RUN conda install -c conda-forge cxx-compiler theano pygpu
 RUN pip install "teneto==0.2.7b"
+RUN pip install "seaborn==0.7.0"
 RUN pip install tvc_benchmarker
 RUN pip install "pybids==0.4.2"
-RUN pip install duecredit
 RUN mkdir -p /root/.config/matplotlib
 RUN echo "backend : Agg" > /root/.config/matplotlib/matplotlibrc 
 
