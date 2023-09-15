@@ -94,9 +94,11 @@ def run_simulations(routine_version=1.0,usesaved='yes',new_method=None,params_ne
 
         # Load saved data or calculate again
         if usesaved == 'yes':
+            print("INFO: using saved data")
             data = tvc_benchmarker.load_data(sim['name'],len(sim['multi_index'])+1)
             dfc = tvc_benchmarker.dfc_calc(sim['name'],colind=len(sim['multi_index'])+1)
         else:
+            print("INFO: generating new data")
             multi_index = list([sim['params'][n] for n in sim['multi_index']])
             multi_index_labels = list(sim['multi_index'])
             #ind = pd.MultiIndex.from_product((multi_index) + [np.arange(0,sim['params']['n_samples'])], names=multi_index_labels + ['time'])
@@ -116,6 +118,7 @@ def run_simulations(routine_version=1.0,usesaved='yes',new_method=None,params_ne
         dfc.to_csv(dat_dir + sim['name'] + '_dfc.csv')
         data.to_csv(dat_dir + sim['name'] + '_data.csv')
 
+        print("INFO: plotting and creating stats")
         # Stats and plotting
         if sim['name'] == 'sim-1':
 

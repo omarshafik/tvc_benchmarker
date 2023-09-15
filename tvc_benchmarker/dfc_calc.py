@@ -31,7 +31,7 @@ def dfc_calc(data,methods=['SW','TSW','SD','JC','TD'],sw_window=63,taper_name='n
 
     # If data is a string, load precalcuated data
     if isinstance(data, str):
-
+        print("INFO: using precalculated data")
         if data == 'sim-1' and not colind:
             colind = 1
         elif (data == 'sim-2' or data == 'sim-3' or data == 'sim-4') and not colind:
@@ -47,7 +47,7 @@ def dfc_calc(data,methods=['SW','TSW','SD','JC','TD'],sw_window=63,taper_name='n
 
     #Otherwise calculate
     else:
-
+        print("INFO: recalculating..")
         # Make methods variable a list if single string is given
         if isinstance(methods,str):
             methods = [methods]

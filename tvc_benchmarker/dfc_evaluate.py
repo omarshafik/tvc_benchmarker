@@ -84,7 +84,7 @@ def bayes_model(x,y,samples=6000,alpha_mu=0,beta_mu=0,alpha_sd=1,beta_sd=1,sigma
         mu = alpha + beta*x
         # Likelihood (sampling distribution) of observations
         Y_obs = pm.Normal('Y_obs', mu=mu, sd=sigma, observed=y)
-        trace = pm.sample(samples,n_init=n_init)
+        trace = pm.sample(samples,n_init=n_init, cores=1)
 
     return trace,model
 

@@ -24,6 +24,21 @@ Have any ideas for improvements to the next version of tvc_benchmarker? [Please 
 
 tvc_benchmarker is written in Python 3. So a python version > 3.5 is needed.  
 
+### Development Mode (recommended)
+This will install the needed dependencies from conda (when possible). Dependencies that don't exist on conda channels are installed using pip.  
+It's generally recommended to use conda, since it installs precompiled binaries. pip builds binaries from source which often results in errors.  
+The recommended **python version** for the benchmarker is **3.6**
+```bash
+conda create -n tvc36 python=3.6
+# change directory into the top repository directory
+conda activate tvc36
+conda install theano pygpu numpy matplotlib==3.0.1 pandas conda-forge::pymc3==3.4.1 scipy seaborn tabulate requests
+pip install pybids==0.4.2 teneto==0.2.7b
+```
+Now you're ready to run tvc_benchmarker from source
+
+### Alternatively, you can use pip (unrecommended)
+
 You can install tvc_benchmarker through [pip](http://www.pythonforbeginners.com/basics/how-to-use-pip-and-pypi/) and [conda](https://conda.io/docs/), simply type:
 
 ```bash
@@ -31,6 +46,7 @@ conda install theano pygpu
 pip install tvc_benchmarker
 ```
 
+### Installation troubleshooting
 This should install all the requirements. If you do not want to use conda, see the Theano documentation below to install without conda. 
 
 It is however possible that some errors will occur due to theano failing to install. To check if theano has been installed correctly you can either (1) Test if it has been successfully installed with the above by typing `nosetests theano` in a terminal window (this takes around 1-2 hours to run) (2) Run `import pymc3` and see if an error is raised (quicker). Check that the error seems to relate to Theano. If an error is rasied, some additional tweaks/settings may be required to successfully get thaeno running but it is unlikely noone will have had that error before and you will find the solution on stackoverflow. ([see Theano installation instructions](http://theano.readthedocs.io/en/latest/install.html) for more details). 
