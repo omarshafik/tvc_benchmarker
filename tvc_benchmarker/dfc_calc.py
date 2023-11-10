@@ -34,12 +34,12 @@ def dfc_calc(data,methods=['SW','TSW','SD','JC','TD'],sw_window=63,taper_name='n
         print("INFO: using precalculated data")
         if data == 'sim-1' and not colind:
             colind = 1
-        elif (data == 'sim-2' or data == 'sim-3' or data == 'sim-4') and not colind:
+        elif (data == 'sim-2' or data == 'sim-3' or data == 'sim-4' or data == 'sim-5') and not colind:
             colind = 2
         elif colind:
             pass
         else:
-            raise ValueError('unknown simulation. Input must be  "sim-1", "sim-2", "sim-3" or "sim-4"')
+            raise ValueError('unknown simulation. Input must be  "sim-1", "sim-2", "sim-3" or "sim-4" or "sim-5"')
         df = pd.read_csv(tvc_benchmarker.__path__[0] + '/data/dfc/' + data + '_dfc.csv',index_col=np.arange(0,colind))
         # Get methods
         requested_methods = list(set(methods).intersection(df.columns))

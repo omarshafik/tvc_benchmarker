@@ -32,7 +32,7 @@ def model_dfc(x,dfc,dat_dir,model_prefix,bayes_model='bayes_model',mi='alpha',mo
         for method in dfc.columns:
             plt.close('all')
             X=dfc[method][mi_params]
-            Y=x['covariance_parameter'][mi_params][X.index]
+            Y=x['coupling_parameter'][mi_params][X.index]
             trace_and_model = tvc_benchmarker.bayes_model(X,Y,**model_params)
             #Save data
             param_sname = [p[0] + '-' + str(p[1]) for p in list(zip(mi,mi_params))]

@@ -6,37 +6,70 @@
         }
     },
     "simulation_names": [
-        "sim-2"
+        "sim-1",
+        "sim-2",
+        "sim-3",
+        "sim-4",
+        "sim-5"
     ],
-    "routine_version": "1.0sup",
+    "routine_version": "2.1",
     "simulation": {
         "0": {
             "params": {
-                "covar_mu": [
-                    0.2,
-                    0.3
+                "state_length": [
+                    [
+                        3
+                    ],
+                    [
+                        5
+                    ],
+                    [
+                        10
+                    ],
+                    [
+                        15
+                    ],
+                    [
+                        20
+                    ],
+                    [
+                        30
+                    ]
                 ],
                 "var": 1,
-                "n_samples": 10000,
+                "covar_range": [
+                    -0.6, 
+                    0,
+                    0.6
+                ],
+                "n_samples": 5000,
                 "mu": [
                     0,
                     0
                 ],
-                "alpha": 0.25,
-                "covar_sigma": 0.1,
-                "randomseed": 2017
+                "alpha": [
+                    0.2,
+                    0.8
+                ],
+                "randomseed": 2023,
+                "covar_sigma": 0.1
             },
             "multi_index_labels": [
                 [
-                    "0.2",
-                    "0.3"
+                    "length-3",
+                    "length-5",
+                    "length-10",
+                    "length-15",
+                    "length-20",
+                    "length-30"
                 ]
             ],
             "multi_index": [
-                "covar_mu"
+                "alpha",
+                "state_length"
             ],
-            "name": "sim-2",
-            "description": "Supplementary simulation"
+            "name": "sim-4",
+            "description": "Track state switches"
         }
     },
     "dfc": {

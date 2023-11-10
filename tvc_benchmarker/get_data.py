@@ -17,7 +17,7 @@ def load_data(data,colind = None):
     if not colind:
         if data == 'sim-1':
             colind = 1
-        elif data == 'sim-2' or data == 'sim-3' or data == 'sim-4':
+        elif data == 'sim-2' or data == 'sim-3' or data == 'sim-4' or data == 'sim-5':
             colind = 2
         else:
             raise ValueError('unknown simulation. Input must be  "sim-1", "sim-2" or "sim-3"')
@@ -69,7 +69,7 @@ def gen_data_sim1(params,mi=None):
         w=np.random.multivariate_normal(d['mu'],d['sigma'],d['n_samples']).transpose()
         x[:,x_start:x_end] = np.array(w)
         for t in range(1,d['n_samples']):
-            x[:,(d['n_samples']*sim_it)+t]=d['alpha']*x[:,(d['n_samples']*sim_it)+t-1]+w[:,t]
+            x[:,(d['n_samples']*sim_it)+t] = d['alpha'] * x[:,(d['n_samples']*sim_it)+t-1] + (1 - d['alpha']) * w[:,t]
 
     multi_ind = pd.MultiIndex.from_product((mi_param_list) + [np.arange(0,d['n_samples'])], names=mi + ['time'])
     df = pd.DataFrame(data={'timeseries_1': x[0,:],'timeseries_2':x[1,:]}, index=multi_ind)
@@ -87,8 +87,6 @@ def gen_data_sim2(params,mi='alpha'):
     :alpha: auto-correlation of time series. Can be single integer or np.array with length of mu
     :mu: Mean of auto-correlated time-series sampled from a multivariate Gaussian distribution. Must be a array/list of length 2 or 2xn_samples.
     :var: Variance of the time series. Integer or np.array with length of mu
-    :covar_mu: Mean of the covariance of the time series.
-    :covar_sigma: Variance of the covariance of the time series.
     :randomseed: set random seed
 
     Additionally, if there is a multi_index variable, this should be specified differently
@@ -102,7 +100,7 @@ def gen_data_sim2(params,mi='alpha'):
 
     *RETURNS*
 
-    :df: pandas dataframe with timeseries_1, timeseries_2, covariance_parameter. Table is multiindexed with alpha and time as the two indexes.
+    :df: pandas dataframe with timeseries_1, timeseries_2, coupling_parameter. Table is multiindexed with alpha and time as the two indexes.
 
     """
     # Random seed
@@ -130,28 +128,20 @@ def gen_data_sim2(params,mi='alpha'):
         if d['mu'].shape[-1]!=d['n_samples']:
             d['mu']=np.tile(d['mu'].transpose(),d['n_samples'])
 
-        # extend covar_mu through timeseries if is integer
-        d['covar_mu']=np.array(d['covar_mu'],ndmin=1)
-        if d['covar_mu'].shape[-1]!=d['n_samples']:
-            d['covar_mu']=np.tile(d['covar_mu'].transpose(),d['n_samples'])
-
         for t in range(0,d['n_samples']):
             # At first time point, no autocorrelation of covariance
             if t==0:
-                covar = np.random.normal(d['covar_mu'][t],d['covar_sigma'])
+                covar = np.random.uniform(-1, 1)
             else:
-                covar = np.random.normal(d['covar_mu'][t],d['covar_sigma'])+d['alpha']*fluct_cv[(d['n_samples']*sim_it)+t-1]
+                covar = (1 - d['alpha']) * np.random.uniform(-1, 1) + d['alpha'] * fluct_cv[(d['n_samples']*sim_it)+t-1]
             x[:,(d['n_samples']*sim_it)+t]=np.random.multivariate_normal(d['mu'][:,t], [[d['var'], covar], [covar, d['var']]], 1)
             fluct_cv[(d['n_samples']*sim_it)+t]=covar
-
-    #x=np.reshape(x,[x.shape[0],np.prod(x.shape[1:])],order='F')
-    #fluct_cv=np.reshape(fluct_cv,[np.prod(fluct_cv.shape)],order='F')
 
     if any(np.abs(fluct_cv)>1): 
         print('TVC BENCHMARKER WARNING: some value(s) of r_t>1 or r_t<-1. Consider changing parameters.')
 
     multi_ind = pd.MultiIndex.from_product((mi_param_list) + [np.arange(0,d['n_samples'])], names=mi + ['time'])
-    df = pd.DataFrame(data={'timeseries_1': x[0,:],'timeseries_2':x[1,:],'covariance_parameter':fluct_cv}, index=multi_ind)
+    df = pd.DataFrame(data={'timeseries_1': x[0,:],'timeseries_2':x[1,:],'coupling_parameter':fluct_cv}, index=multi_ind)
     return df
 
 
@@ -170,8 +160,6 @@ def gen_data_sim3(params,mi='alpha'):
     :hrf_zeropad: add additional zeros to HRF function (periods of rest)
     :hrf_scale: make the hrf bigger/smaller compared to the rest of the signal.
     :var: Variance of the time series. Integer or np.array with length of mu
-    :covar_mu: Mean of the covariance of the time series.
-    :covar_sigma: Variance of the covariance of the time series.
     :randomseed: set random seed
 
     *LIMITATIONS*
@@ -181,7 +169,7 @@ def gen_data_sim3(params,mi='alpha'):
 
     *RETURNS*
 
-    :df: pandas dataframe with timeseries_1, timeseries_2, covariance_parameter. Table is multiindexed with alpha and time as the two indexes.
+    :df: pandas dataframe with timeseries_1, timeseries_2, coupling_parameter. Table is multiindexed with alpha and time as the two indexes.
 
     """
 
@@ -208,9 +196,6 @@ def gen_data_sim3(params,mi='alpha'):
     return df
 
 
-
-
-
 def gen_data_sim4(params,mi=None):
 
     """
@@ -233,7 +218,7 @@ def gen_data_sim4(params,mi=None):
 
     *RETURNS*
 
-    :df: pandas dataframe with timeseries_1, timeseries_2, covariance_parameter. Table is multiindexed with alpha and time as the two indexes.
+    :df: pandas dataframe with timeseries_1, timeseries_2, coupling_parameter. Table is multiindexed with alpha and time as the two indexes.
 
     """
 
@@ -257,8 +242,6 @@ def gen_data_sim4(params,mi=None):
         for i in range(0,len(mi)):
             d[mi[i]] = mi_params[i]
 
-
-
         # extend mu through timeseries if it is (list of) integers
         d['mu']=np.array(d['mu'],ndmin=2)
         if d['mu'].shape[-1]!=d['n_samples']:
@@ -268,21 +251,106 @@ def gen_data_sim4(params,mi=None):
         while len(covar_mu)<d['n_samples']:
             new_covariance = np.random.permutation(d['covar_range'])[0]
             covariance_length = np.random.permutation(d['state_length'])[0]
-            covar_mu = np.hstack([covar_mu,np.tile(new_covariance,covariance_length)])
+            covar_mu = np.hstack([covar_mu, np.tile(new_covariance,covariance_length)])
 
         covar_mu=covar_mu[:d['n_samples']]
         fluct_cv_state[(d['n_samples']*sim_it):(d['n_samples']*(sim_it+1))]=covar_mu
         for t in range(0,d['n_samples']):
-            covar = np.random.normal(covar_mu[t],d['covar_sigma'])
-            x[:,(d['n_samples']*sim_it)+t]=np.random.multivariate_normal(d['mu'][:,t],[[d['var'],covar],[covar,d['var']]],1)
+            covar = np.clip(np.random.normal(covar_mu[t],d['covar_sigma']), -0.99, 0.99)
+            multivariate_signal=np.random.multivariate_normal(d['mu'][:,t],[[d['var'],covar],[covar,d['var']]],1)
             fluct_cv[(d['n_samples']*sim_it)+t]=covar
+            if t == 0:
+                x[:,(d['n_samples']*sim_it)+t] = multivariate_signal
+            else:
+                x[:,(d['n_samples']*sim_it)+t] = d['alpha'] * x[:, (d['n_samples']*sim_it)+t-1] + (1 - d['alpha']) * multivariate_signal
+
 
     # Reshape for pandas dataframe
     x=np.reshape(x,[x.shape[0],np.prod(x.shape[1:])],order='F')
     fluct_cv=np.reshape(fluct_cv,[np.prod(fluct_cv.shape)],order='F')
     fluct_cv_state=np.reshape(fluct_cv_state,[np.prod(fluct_cv_state.shape)],order='F')
     multi_ind = pd.MultiIndex.from_product((mi_param_list + [np.arange(0,d['n_samples'])]), names=mi + ['time'])
-    df = pd.DataFrame(data={'timeseries_1': x[0,:],'timeseries_2':x[1,:],'covariance_parameter':fluct_cv,'covariance_mean':fluct_cv_state}, index=multi_ind)
+    df = pd.DataFrame(data={'timeseries_1': x[0,:],'timeseries_2':x[1,:],'coupling_parameter':fluct_cv,'coupling_mean':fluct_cv_state}, index=multi_ind)
+
+    return df
+
+def gen_data_sim5(params,mi=None):
+
+    """
+    *INPUT*
+
+    No input runs the default simulation.
+
+    :n_samples: length of time series. Default=10,000
+    :mu: Mean of auto-correlated time-series sampled from a multivariate Gaussian distribution. Must be a array/list of length 2 or 2xn_samples.
+    :var: Variance of the time series. Integer or np.array with length of mu
+    :covar_range: list of possible covariance
+    :state_length: List of lists of possible times before covariance changes.
+    :state_length_name: Name of each stat
+    :randomseed: set random seed
+
+    *LIMITATIONS*
+
+    As the parameters stand, only 2 time series can be generated (some minor modifications are needed to generate more).
+    Input `var` must be integer and cannot vary between the time series.
+
+    *RETURNS*
+
+    :df: pandas dataframe with timeseries_1, timeseries_2, coupling_parameter. Table is multiindexed with alpha and time as the two indexes.
+
+    """
+
+    # Random seed
+    np.random.seed(params['randomseed'])
+
+    # Check multiindex and get number of each multiindex
+    mi,mi_num,mi_parameters,mi_param_list = tvc_benchmarker.multiindex_preproc(params,mi)
+
+    # Pre allocate output
+    x=np.zeros([2,params['n_samples']] + mi_num)
+    x = x.reshape([2,int(np.prod(x.shape)/2)])
+
+    fluct_weight = np.zeros([params['n_samples']*len(mi_parameters)])
+    fluct_weight_state= np.zeros([params['n_samples']*len(mi_parameters)])
+
+    # Set preliminary arguments
+    for sim_it, mi_params in enumerate(mi_parameters):
+
+        d = dict(params)
+        for i in range(0,len(mi)):
+            d[mi[i]] = mi_params[i]
+
+        # extend mu through timeseries if it is (list of) integers
+        d['mu']=np.array(d['mu'],ndmin=2)
+        if d['mu'].shape[-1]!=d['n_samples']:
+            d['mu']=np.tile(d['mu'].transpose(),d['n_samples'])
+
+        weight_mu=np.array([])
+        while len(weight_mu)<d['n_samples']:
+            new_weight = np.random.permutation(d['weight_range'])[0]
+            state_length = np.random.permutation(d['state_length'])[0]
+            weight_mu = np.hstack([weight_mu, np.tile(new_weight,state_length)])
+
+        weight_mu=weight_mu[:d['n_samples']]
+        fluct_weight_state[(d['n_samples']*sim_it):(d['n_samples']*(sim_it+1))]=weight_mu
+        for t in range(0,d['n_samples']):
+            weight = np.random.normal(weight_mu[t],d['weight_sigma'])
+            t_idx = (d['n_samples'] * sim_it) + t
+            if t == 0:
+                x[0,t_idx] = np.random.normal(d['mu'][0,t],d['var'])
+                x[1,t_idx] = np.random.normal(d['mu'][0,t],d['var'])
+            else:
+                x[0, t_idx] = d['alpha'] * x[0, t_idx - 1] + (1 - d['alpha']) * np.random.normal(d['mu'][0,t],d['var'])
+                x[1, t_idx] = weight * (x[0, t_idx] + x[0, t_idx - 1]) / 2 + (1 - np.abs(weight)) * (d['alpha'] * x[1, t_idx - 1] + (1 - d['alpha']) * np.random.normal(d['mu'][1,t], d['var']))
+            fluct_weight[t_idx]=weight
+
+
+    # Reshape for pandas dataframe
+    x=np.reshape(x,[x.shape[0],np.prod(x.shape[1:])],order='F')
+    fluct_weight=np.reshape(fluct_weight,[np.prod(fluct_weight.shape)],order='F')
+    fluct_weight_state=np.reshape(fluct_weight_state,[np.prod(fluct_weight_state.shape)],order='F')
+    multi_ind = pd.MultiIndex.from_product((mi_param_list + [np.arange(0,d['n_samples'])]), names=mi + ['time'])
+    df = pd.DataFrame(data={'timeseries_1': x[0,:],'timeseries_2':x[1,:],'coupling_parameter':fluct_weight,'coupling_mean':fluct_weight_state}, index=multi_ind)
 
     return df
 
@@ -294,6 +362,6 @@ def gen_data(simparams):
     """
 
 
-    simulations={'sim-1':tvc_benchmarker.gen_data_sim1,'sim-2':tvc_benchmarker.gen_data_sim2,'sim-3':tvc_benchmarker.gen_data_sim3,'sim-4':tvc_benchmarker.gen_data_sim4}
+    simulations={'sim-1':tvc_benchmarker.gen_data_sim1, 'sim-2':tvc_benchmarker.gen_data_sim2, 'sim-3':tvc_benchmarker.gen_data_sim3, 'sim-4':tvc_benchmarker.gen_data_sim4, 'sim-5':tvc_benchmarker.gen_data_sim5}
     df = simulations[simparams['name']](simparams['params'],mi=simparams['multi_index'])
     return df

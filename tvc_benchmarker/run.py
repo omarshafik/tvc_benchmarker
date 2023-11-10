@@ -126,11 +126,11 @@ def run_simulations(routine_version=1.0,usesaved='yes',new_method=None,params_ne
             tvc_benchmarker.plot_dfc_timeseries(dfc,mi=[],fig_dir=fig_dir,fig_prefix=sim['name'])
             tvc_benchmarker.plot_method_correlation(dfc,mi=[],fig_dir=fig_dir,fig_prefix=sim['name'])
 
-        elif sim['name'] == 'sim-2' or sim['name'] == 'sim-3' or sim['name'] == 'sim-4':
-
+        elif sim['name'] == 'sim-2' or sim['name'] == 'sim-3' or sim['name'] == 'sim-4' or sim['name'] == 'sim-5':
 
             tvc_benchmarker.plot_timeseries(data,plot_autocorr='no',fig_dir=fig_dir,fig_prefix=sim['name'],mi=sim['multi_index'])
-            tvc_benchmarker.plot_fluctuating_covariance(data,fig_dir=fig_dir,fig_prefix=sim['name'],mi=sim['multi_index'])
+            coupling_plot_xlabel = "Weight" if (sim['name'] == 'sim-5') else "Covariance"
+            tvc_benchmarker.plot_fluctuating_coupling(data,fig_dir=fig_dir,fig_prefix=sim['name'],mi=sim['multi_index'], coupling_label=coupling_plot_xlabel)
             dfc=dfc.dropna()
             tvc_benchmarker.model_dfc(data,dfc,stat_dir,sim['name'],mi=sim['multi_index'],model_params=params['stats']['trace'])
             tvc_benchmarker.calc_waic(dfc,model_dir=stat_dir,save_dir=table_dir,file_prefix=sim['name'],burn=params['stats']['burn'],mi=sim['multi_index'])

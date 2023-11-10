@@ -145,9 +145,9 @@ def plot_method_correlation(dfc, cmap='RdBu_r', fig_dir=None, fig_prefix=None, m
         tvc_benchmarker.square_axis(ax)
 
         ax.set_xticks(np.arange(0.5,len(dfc.columns)-0.49,1))
-        ax.set_xticklabels(sorted(dfc.columns))
+        ax.set_xticklabels(sorted(dfc.columns), fontsize=6)
         ax.set_yticks(np.arange(0.5,len(dfc.columns)-0.49,1))
-        ax.set_yticklabels(sorted(dfc.columns))
+        ax.set_yticklabels(sorted(dfc.columns), fontsize=6)
         ax.axis([0,len(dfc.columns),len(dfc.columns),0])
 
         plt.suptitle(param_title,fontsize=11)
@@ -283,7 +283,7 @@ def plot_betadfc_distribution(dfc, dat_dir, fig_dir = None, model_prefix=None, b
 
 
 
-def plot_fluctuating_covariance(x, fig_dir = None, lags=10,limitaxis=500,cm = 'Set2',mi='alpha', fig_prefix=None):
+def plot_fluctuating_coupling(x, fig_dir = None, lags=30,limitaxis=500,cm = 'Set2',mi='alpha', fig_prefix=None, coupling_label='Covariance'):
 
 #    if labels == None:
 #        labels=np.unique(x.index.get_level_values(mi))
@@ -323,7 +323,7 @@ def plot_fluctuating_covariance(x, fig_dir = None, lags=10,limitaxis=500,cm = 'S
         if mi_params == ():
             mi_params = np.arange(0,len(x))
 
-        covariance_autocorrelation = tvc_benchmarker.autocorr(x['covariance_parameter'][mi_params],lags=lags)
+        covariance_autocorrelation = tvc_benchmarker.autocorr(x['coupling_parameter'][mi_params],lags=lags)
 
         # Create grid
         fig = plt.figure()
@@ -332,35 +332,35 @@ def plot_fluctuating_covariance(x, fig_dir = None, lags=10,limitaxis=500,cm = 'S
         ax.append(plt.subplot2grid((2,2),(1,0)))
         ax.append(plt.subplot2grid((2,2),(1,1)))
 
-        ax[0].plot(np.arange(1,limitaxis+1),x['covariance_parameter'][mi_params][:limitaxis],color=colormap(0),alpha=0.5,linewidth=2)
+        ax[0].plot(np.arange(1,limitaxis+1),x['coupling_parameter'][mi_params][:limitaxis],color=colormap(0),alpha=0.5,linewidth=2)
         ax[0].set_xlabel('Time')
-        ax[0].set_ylabel(r'Covariance ($r_t$)')
+        ax[0].set_ylabel(coupling_label)
 
-        ymin = x['covariance_parameter'][mi_params][:limitaxis].min()
-        ymax = x['covariance_parameter'][mi_params][:limitaxis].max()
+        ymin = x['coupling_parameter'][mi_params][:limitaxis].min()
+        ymax = x['coupling_parameter'][mi_params][:limitaxis].max()
         ax[0].axis([1,limitaxis+1,np.around(ymin-0.05,1),np.around(ymax+0.05,1)])
 
 
-        ax[1].hist(x['covariance_parameter'][mi_params],np.arange(-.1,1,0.02),color=colormap(1),alpha=0.9,linewidth=0,histtype='stepfilled',normed='true')
-        ax[1].set_xlabel('Covariance')
+        ax[1].hist(x['coupling_parameter'][mi_params],np.arange(-1.5,1.5,0.02),color=colormap(1),alpha=0.9,linewidth=0,histtype='stepfilled',normed='true')
+        ax[1].set_xlabel(coupling_label)
         ax[1].set_ylabel('Frequency')
-        xmin = x['covariance_parameter'][mi_params].min()
-        xmax = x['covariance_parameter'][mi_params].max()
+        xmin = x['coupling_parameter'][mi_params].min()
+        xmax = x['coupling_parameter'][mi_params].max()
         ax[1].axis([np.around(xmin-0.05,1),np.around(xmax+0.05,1),0,np.ceil(ax[1].get_ylim()[-1])])
 
         tvc_benchmarker.square_axis(ax[1])
 
-        ax[2].plot(np.arange(0,11),covariance_autocorrelation,color=colormap(2),alpha=0.9,linewidth=2)
+        ax[2].plot(np.arange(0,lags+1),covariance_autocorrelation,color=colormap(2),alpha=0.9,linewidth=2)
         ax[2].set_ylabel('Correlation (r)')
         ax[2].set_xlabel('Lag')
         ymin = covariance_autocorrelation.min()
         ymax = 1
-        ax[2].axis([0,10,np.around(ymin-0.05,1),np.around(ymax+0.05,1)])
+        ax[2].axis([0,lags,np.around(ymin-0.05,1),np.around(ymax+0.05,1)])
 
         tvc_benchmarker.square_axis(ax[2])
         plt.suptitle(param_title,fontsize=11)
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-        plt.savefig(fig_dir + '/' + fig_prefix + 'fluctuating-covariance' + param_sname + '.pdf',r=600)
+        plt.savefig(fig_dir + '/' + fig_prefix + 'fluctuating-coupling' + param_sname + '.pdf',r=600)
 
     plt.close('all')
